@@ -16,6 +16,11 @@ const FormSchema = z.object({
   date: z.string(),
 });
 
+const UserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
 // This is temporary until @types/react-dom is updated
 export type State = {
   errors?: {
