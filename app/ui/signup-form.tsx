@@ -9,11 +9,12 @@ import {
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from './button';
 import { useFormState, useFormStatus } from 'react-dom';
-import { authenticate } from '@/app/lib/actions';
+import { createUser } from '@/app/lib/actions';
 import Link from 'next/link';
 
-export default function LoginForm({ name }: { name: string }) {
-  const [errorMessage, dispatch] = useFormState(authenticate, undefined);
+export default function SignupForm({ name }: { name: string }) {
+  const [errorMessage, dispatch] = useFormState(createUser, undefined);
+
   return (
     <form action={dispatch} className="space-y-3">
       <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
@@ -76,9 +77,9 @@ export default function LoginForm({ name }: { name: string }) {
         </div>
 
         <div className="flex">
-          <p>New to Acme?</p>
-          <Link href={'/signup'} className="mx-2 flex font-bold text-blue-400">
-            Sign Up
+          <p>Already a user?</p>
+          <Link href={'/login'} className="mx-2 flex font-bold text-blue-400">
+            Log In
           </Link>
         </div>
       </div>

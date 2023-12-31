@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import bcrypt from 'bcrypt';
 
 const FormSchema = z.object({
   id: z.string(),
@@ -48,6 +49,44 @@ export async function authenticate(
     }
     throw error;
   }
+}
+
+export async function createUser(prevState: any, formData: FormData) {
+  // ...
+  const validatedUser = UserSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+  });
+
+  if (!validatedUser.success) {
+    return {
+      error: validatedUser.error.flatten().fieldErrors,
+      message: 'invalid user input',
+    };
+  }
+
+  const { email, password } = validatedUser.data;
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const name = email.split('@')[0];
+  try {
+    await sql`
+    INSERT INTO users (name, email, password)
+    VALUES (${name},${email},${hashedPassword})
+    `;
+  } catch (error: any) {
+    console.log(error);
+    return {
+      error: error.massage,
+      message: 'Failed to create User',
+    };
+  }
+  console.log('user created successfully', validatedUser.data);
+  redirect('/dashboard');
+  return {
+    message: 'User Created successfully',
+  };
 }
 
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
@@ -137,7 +176,6 @@ export async function updateInvoice(
 }
 
 export async function deleteInvoice(id: string) {
-  throw new Error('Failed to delete Invoice');
   try {
     await sql`DELETE FROM invoices WHERE id = ${id}`;
     revalidatePath('/dashboard/invoices');
